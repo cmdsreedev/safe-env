@@ -14,7 +14,7 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    if: startsWith(github.event.head_commit.message, 'feat') || startsWith(github.event.head_commit.message, 'fix') || startsWith(github.event.head_commit.message, 'perf') || contains(github.event.head_commit.message, 'BREAKING CHANGE')
+    if: (startsWith(github.event.head_commit.message, 'feat') || startsWith(github.event.head_commit.message, 'fix') || startsWith(github.event.head_commit.message, 'perf') || contains(github.event.head_commit.message, 'BREAKING CHANGE')) && secrets.NPM_TOKEN != ''
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -41,11 +41,6 @@ jobs:
         run: npm run build
 
       - name: Release
-        if: env.NODE_AUTH_TOKEN != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run release
-
-      - name: Skip release
-        if: env.NODE_AUTH_TOKEN == ''
-        run: echo "Skipping semantic-release because NPM_TOKEN is not configured."
