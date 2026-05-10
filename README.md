@@ -1,6 +1,12 @@
 # @cmdsree/safe-env
 
+[![Test](https://github.com/cmdsreedev/safe-env/actions/workflows/test.yml/badge.svg)](https://github.com/cmdsreedev/safe-env/actions/workflows/test.yml)
+![Coverage](https://img.shields.io/badge/coverage-97%25%20lines%20%7C%2092%25%20branches%20%7C%20100%25%20functions-brightgreen)
+![Library size](https://img.shields.io/badge/library%20size-5.6%20KB%20js%20%7C%202.3%20KB%20types-blue)
+
 Type-safe environment variable validation for Node.js.
+
+Small by default: the current build is 5.6 KB of CommonJS runtime plus 2.3 KB of TypeScript declarations.
 
 ## Usage
 
