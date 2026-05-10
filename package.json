@@ -2,6 +2,14 @@
   "name": "@cmdsreedev/safe-env",
   "version": "1.0.0",
   "description": "Safe environment variable helpers.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cmdsreedev/safe-env.git"
+  },
+  "homepage": "https://github.com/cmdsreedev/safe-env#readme",
+  "bugs": {
+    "url": "https://github.com/cmdsreedev/safe-env/issues"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [

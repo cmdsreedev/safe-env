@@ -14,28 +14,16 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    if: startsWith(github.event.head_commit.message, 'feat') || startsWith(github.event.head_commit.message, 'fix') || startsWith(github.event.head_commit.message, 'perf') || contains(github.event.head_commit.message, 'BREAKING CHANGE')
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     steps:
-      - name: Check release token
-        id: release-token
-        run: |
-          if [ -n "$NODE_AUTH_TOKEN" ]; then
-            echo "available=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "available=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Checkout
-        if: steps.release-token.outputs.available == 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Setup Node
-        if: steps.release-token.outputs.available == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -43,23 +31,15 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - name: Install dependencies
-        if: steps.release-token.outputs.available == 'true'
         run: npm ci
 
       - name: Run tests
-        if: steps.release-token.outputs.available == 'true'
         run: npm run test:coverage
 
       - name: Build package
-        if: steps.release-token.outputs.available == 'true'
         run: npm run build
 
       - name: Release
-        if: steps.release-token.outputs.available == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run release
-
-      - name: Skip release
-        if: steps.release-token.outputs.available != 'true'
-        run: echo "Skipping semantic-release because NPM_TOKEN is not configured."
