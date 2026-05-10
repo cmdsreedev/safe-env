@@ -12,7 +12,7 @@
     "build": "tsc",
     "pretest": "npm run build",
     "test": "node --test dist/**/*.test.js",
-    "test:coverage": "npm run build && node --test --experimental-test-coverage --test-coverage-include=dist/index.js --test-coverage-lines=95 --test-coverage-branches=90 --test-coverage-functions=100 dist/**/*.test.js",
+    "test:coverage": "npm run build && c8 --check-coverage --include dist/index.js --lines 95 --branches 90 --functions 100 node --test dist/**/*.test.js",
     "release": "semantic-release"
   },
   "keywords": [
@@ -25,6 +25,7 @@
   "type": "commonjs",
   "devDependencies": {
     "@types/node": "^25.6.2",
+    "c8": "^11.0.0",
     "semantic-release": "^25.0.3",
     "typescript": "^5.4.0"
   }
