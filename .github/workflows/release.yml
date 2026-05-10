@@ -14,6 +14,8 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     steps:
       - name: Checkout
@@ -38,7 +40,11 @@ jobs:
         run: npm run build
 
       - name: Release
+        if: env.NODE_AUTH_TOKEN != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm run release
+
+      - name: Skip release
+        if: env.NODE_AUTH_TOKEN == ''
+        run: echo "Skipping semantic-release because NPM_TOKEN is not configured."
