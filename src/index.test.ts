@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { EnvError, env, formatEnvIssues, loadEnv } from './index';
+import { EnvError, describeEnv, env, formatEnvIssues, loadEnv, toEnvExample } from './index';
 
 test('loads and infers common env values', () => {
   const config = loadEnv({
@@ -35,6 +35,13 @@ test('reports all validation issues together', () => {
     assert.match(error.message, /API_KEY/);
     assert.match(error.message, /PORT/);
     assert.match(error.message, /MODE/);
+    assert.deepEqual(error.issues[1]?.expected, {
+      type: 'number',
+      integer: true,
+      max: undefined,
+      min: undefined
+    });
+    assert.equal(error.issues[1]?.suggestion, 'Set PORT to a numeric value.');
     return true;
   });
 });
@@ -146,7 +153,9 @@ test('custom validators can fail with structured issues', () => {
   assert.throws(() => loadEnv({
     SECRET: env.custom((raw, context) => {
       if (!raw.startsWith('secret_')) {
-        context.fail('invalid_format', `${context.name} must start with secret_.`);
+        context.fail('invalid_format', `${context.name} must start with secret_.`, {
+          suggestion: 'Set SECRET to a value prefixed with secret_.'
+        });
       }
 
       return raw;
@@ -158,6 +167,7 @@ test('custom validators can fail with structured issues', () => {
     assert.equal(error.issues[0]?.name, 'SECRET');
     assert.equal(error.issues[0]?.value, 'public_value');
     assert.equal(error.issues[0]?.code, 'invalid_format');
+    assert.equal(error.issues[0]?.suggestion, 'Set SECRET to a value prefixed with secret_.');
     return true;
   });
 });
@@ -187,4 +197,98 @@ test('formatEnvIssues has stable empty and populated output', () => {
     message: 'API_KEY is required.',
     name: 'API_KEY'
   }]), 'Invalid environment variables:\n- API_KEY: API_KEY is required.');
+});
+
+test('EnvError serializes to machine-readable JSON for agents', () => {
+  assert.throws(() => loadEnv({
+    API_URL: env.url({ protocols: ['https:'] })
+  }, {
+    API_URL: 'http://example.com'
+  }), (error: unknown) => {
+    assert.ok(error instanceof EnvError);
+    assert.deepEqual(error.toJSON(), {
+      name: 'EnvError',
+      message: error.message,
+      issues: [{
+        name: 'API_URL',
+        code: 'invalid_value',
+        expected: {
+          type: 'url',
+          protocols: ['https:']
+        },
+        message: 'API_URL must use one of these protocols: https:.',
+        suggestion: 'Set API_URL to a URL using one of these protocols: https:.',
+        value: 'http://example.com'
+      }]
+    });
+    return true;
+  });
+});
+
+test('describeEnv exposes schema metadata and toEnvExample creates env templates', () => {
+  const schema = {
+    API_KEY: env.string({
+      description: 'API key used for upstream requests.',
+      example: 'change-me'
+    }),
+    DEBUG: env.boolean({ default: false }),
+    NODE_ENV: env.oneOf(['development', 'test', 'production'] as const, { default: 'development' }),
+    PORT: env.number({ integer: true, min: 1, max: 65535, default: 3000 })
+  };
+
+  assert.deepEqual(describeEnv(schema), {
+    API_KEY: {
+      default: undefined,
+      description: 'API key used for upstream requests.',
+      example: 'change-me',
+      expected: {
+        type: 'string',
+        allowEmpty: undefined,
+        pattern: undefined,
+        trim: true
+      },
+      optional: false,
+      required: true
+    },
+    DEBUG: {
+      default: 'false',
+      description: undefined,
+      example: undefined,
+      expected: { type: 'boolean' },
+      optional: false,
+      required: false
+    },
+    NODE_ENV: {
+      default: 'development',
+      description: undefined,
+      example: undefined,
+      expected: {
+        type: 'oneOf',
+        values: ['development', 'test', 'production']
+      },
+      optional: false,
+      required: false
+    },
+    PORT: {
+      default: '3000',
+      description: undefined,
+      example: undefined,
+      expected: {
+        type: 'number',
+        integer: true,
+        max: 65535,
+        min: 1
+      },
+      optional: false,
+      required: false
+    }
+  });
+
+  assert.equal(toEnvExample(schema), [
+    '# API key used for upstream requests.',
+    'API_KEY=change-me',
+    'DEBUG=false',
+    'NODE_ENV=development',
+    'PORT=3000'
+  ].join('\n'));
 });

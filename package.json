@@ -5,11 +5,13 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist",
+    "dist/index.d.ts",
+    "dist/index.js",
     "README.md"
   ],
   "scripts": {
     "build": "tsc",
+    "prepack": "npm run build",
     "pretest": "npm run build",
     "test": "node --test dist/*.test.js",
     "test:coverage": "npm run build && c8 --check-coverage --include dist/index.js --lines 95 --branches 90 --functions 100 node --test dist/*.test.js",

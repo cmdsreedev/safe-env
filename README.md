@@ -2,11 +2,11 @@
 
 [![Test](https://github.com/cmdsreedev/safe-env/actions/workflows/test.yml/badge.svg)](https://github.com/cmdsreedev/safe-env/actions/workflows/test.yml)
 ![Coverage](https://img.shields.io/badge/coverage-97%25%20lines%20%7C%2092%25%20branches%20%7C%20100%25%20functions-brightgreen)
-![Library size](https://img.shields.io/badge/library%20size-5.6%20KB%20js%20%7C%202.3%20KB%20types-blue)
+![Library size](https://img.shields.io/badge/library%20size-8.9%20KB%20js%20%7C%203.6%20KB%20types-blue)
 
 Type-safe environment variable validation for Node.js.
 
-Small by default: the current build is 5.6 KB of CommonJS runtime plus 2.3 KB of TypeScript declarations.
+Small by default: the current package dry-run is 4.7 KB packed, with 8.9 KB of CommonJS runtime plus 3.6 KB of TypeScript declarations unpacked.
 
 ## Usage
 
@@ -57,7 +57,7 @@ const config = loadEnv({
 ### Errors
 
 ```ts
-import { EnvError, env, loadEnv } from '@cmdsree/safe-env';
+import { EnvError, describeEnv, env, loadEnv, toEnvExample } from '@cmdsree/safe-env';
 
 try {
   loadEnv({ API_KEY: env.string(), PORT: env.number() });
@@ -65,6 +65,49 @@ try {
   if (error instanceof EnvError) {
     console.error(error.message);
     console.error(error.issues);
+    console.error(error.toJSON());
   }
 }
+```
+
+`EnvError` includes structured issue data for tools and AI agents:
+
+```json
+{
+  "name": "PORT",
+  "code": "invalid_type",
+  "expected": { "type": "number" },
+  "message": "PORT must be a number.",
+  "suggestion": "Set PORT to a numeric value.",
+  "value": "abc"
+}
+```
+
+### Schema metadata
+
+Validators expose metadata so agents can inspect the expected environment without parsing error text:
+
+```ts
+const schema = {
+  API_KEY: env.string({
+    description: 'API key used for upstream requests.',
+    example: 'change-me'
+  }),
+  NODE_ENV: env.oneOf(['development', 'test', 'production'] as const, {
+    default: 'development'
+  }),
+  PORT: env.number({ integer: true, min: 1, max: 65535, default: 3000 })
+};
+
+describeEnv(schema);
+toEnvExample(schema);
+```
+
+`toEnvExample(schema)` returns:
+
+```env
+# API key used for upstream requests.
+API_KEY=change-me
+NODE_ENV=development
+PORT=3000
 ```
