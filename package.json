@@ -1,5 +1,5 @@
 {
-  "name": "@cmdsree/safe-env",
+  "name": "@cmdsreedev/safe-env",
   "version": "1.0.0",
   "description": "Safe environment variable helpers.",
   "main": "dist/index.js",

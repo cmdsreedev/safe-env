@@ -1,4 +1,4 @@
-# @cmdsree/safe-env
+# @cmdsreedev/safe-env
 
 [![Test](https://github.com/cmdsreedev/safe-env/actions/workflows/test.yml/badge.svg)](https://github.com/cmdsreedev/safe-env/actions/workflows/test.yml)
 ![Coverage](https://img.shields.io/badge/coverage-97%25%20lines%20%7C%2092%25%20branches%20%7C%20100%25%20functions-brightgreen)
@@ -11,7 +11,7 @@ Small by default: the current package dry-run is 4.7 KB packed, with 8.9 KB of C
 ## Usage
 
 ```ts
-import { env, loadEnv } from '@cmdsree/safe-env';
+import { env, loadEnv } from '@cmdsreedev/safe-env';
 
 const config = loadEnv({
   API_KEY: env.string(),
@@ -57,7 +57,7 @@ const config = loadEnv({
 ### Errors
 
 ```ts
-import { EnvError, describeEnv, env, loadEnv, toEnvExample } from '@cmdsree/safe-env';
+import { EnvError, describeEnv, env, loadEnv, toEnvExample } from '@cmdsreedev/safe-env';
 
 try {
   loadEnv({ API_KEY: env.string(), PORT: env.number() });
