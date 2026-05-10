@@ -11,8 +11,8 @@
   "scripts": {
     "build": "tsc",
     "pretest": "npm run build",
-    "test": "node --test dist/**/*.test.js",
-    "test:coverage": "npm run build && c8 --check-coverage --include dist/index.js --lines 95 --branches 90 --functions 100 node --test dist/**/*.test.js",
+    "test": "node --test dist/*.test.js",
+    "test:coverage": "npm run build && c8 --check-coverage --include dist/index.js --lines 95 --branches 90 --functions 100 node --test dist/*.test.js",
     "release": "semantic-release"
   },
   "keywords": [
