@@ -11,7 +11,9 @@
   "scripts": {
     "build": "tsc",
     "pretest": "npm run build",
-    "test": "node --test dist/**/*.test.js"
+    "test": "node --test dist/**/*.test.js",
+    "test:coverage": "npm run build && node --test --experimental-test-coverage --test-coverage-include=dist/index.js --test-coverage-lines=95 --test-coverage-branches=90 --test-coverage-functions=100 dist/**/*.test.js",
+    "release": "semantic-release"
   },
   "keywords": [
     "env",
@@ -23,6 +25,7 @@
   "type": "commonjs",
   "devDependencies": {
     "@types/node": "^25.6.2",
+    "semantic-release": "^25.0.3",
     "typescript": "^5.4.0"
   }
 }
